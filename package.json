@@ -1,0 +1,6 @@
+{
+  "dependencies": {
+    "gitignore": "^0.7.0",
+    "init-gitignore": "^1.0.2"
+  }
+}
