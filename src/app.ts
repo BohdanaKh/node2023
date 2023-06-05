@@ -130,5 +130,5 @@ app.delete("/users/:id", (req: Request, res: Response) => {
 const PORT = 5001;
 
 app.listen(PORT, () => {
-  console.log(`Server has started on PORT ${PORT} 🥸`);
+  // console.log(`Server has started on PORT ${PORT}`);
 });

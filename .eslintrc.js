@@ -6,7 +6,8 @@ module.exports = {
   },
   plugins: [
     '@typescript-eslint/eslint-plugin',
-    'simple-import-sort'
+    'simple-import-sort',
+      'import',
   ],
   extends: [
     'plugin:prettier/recommended',
