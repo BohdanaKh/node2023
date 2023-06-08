@@ -1,61 +1,83 @@
-import { Request, Response } from "express";
+import { NextFunction, Request, Response } from "express";
 
-import { users } from "../db/users.db";
+import { userService } from "../services";
+import { IUser } from "../types";
 
-interface IUser {
-  name: string;
-  age: number;
-  gender: string;
-}
 class UserController {
   public async findAll(
     req: Request,
-    res: Response
+    res: Response,
+    next: NextFunction
   ): Promise<Response<IUser[]>> {
     try {
-      // return res.json(users);
-      throw new Error("Smth went wrong");
+      const users = await userService.findAll();
+
+      return res.json(users);
     } catch (e) {
-      return res.json({
-        message: e.message,
-        status: 400,
-      });
+      next(e);
     }
   }
 
-  public async getById(req: Request, res: Response) {
-    const { id } = req.params;
+  public async create(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<Response<IUser>> {
+    try {
+      const createdUser = await userService.create(req.res.locals as IUser);
 
-    res.status(200).json(users[+id]);
+      return res.status(201).json(createdUser);
+    } catch (e) {
+      next(e);
+    }
   }
 
-  public create(req: Request, res: Response) {
-    users.push(req.body);
+  public async findById(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<Response<IUser>> {
+    try {
+      const user = await userService.findById(req.params.id);
 
-    res.status(201).json({
-      message: "User created.",
-    });
+      return res.json(user);
+    } catch (e) {
+      next(e);
+    }
   }
 
-  public async updateById(req: Request, res: Response) {
-    const { id } = req.params;
+  public async updateById(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<Response<IUser>> {
+    try {
+      const updatedUser = await userService.updateById(req.params.id, req.body);
 
-    users[+id] = req.body;
+      // const { error, value } = UserValidator.update.validate(req.body);
+      // if (error) {
+      //   throw new ApiError(error.message, 400);
+      // }
 
-    res.status(200).json({
-      message: "User updated",
-      data: users[+id],
-    });
+      return res.status(200).json(updatedUser);
+    } catch (e) {
+      next(e);
+    }
   }
 
-  public async deleteById(req: Request, res: Response) {
-    const { id } = req.params;
+  public async deleteById(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<Response<void>> {
+    try {
+      await userService.deleteById(req.params.id);
 
-    users.splice(+id, 1);
-
-    res.status(200).json({
-      message: "User deleted",
-    });
+      return res.sendStatus(200);
+    } catch (e) {
+      next(e);
+    }
   }
 }
+
 export const userController = new UserController();

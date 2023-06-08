@@ -1,6 +1,9 @@
-import express from "express";
+import express, { NextFunction, Request, Response } from "express";
+import * as mongoose from "mongoose";
 
-import { userRouter } from "./routers/user.router";
+import { configs } from "./configs";
+import { ApiError } from "./errors";
+import { userRouter } from "./routers";
 
 const app = express();
 
@@ -9,10 +12,16 @@ app.use(express.urlencoded({ extended: true }));
 
 app.use("/users", userRouter);
 
+app.use((error: ApiError, req: Request, res: Response, next: NextFunction) => {
+  const status = error.status || 500;
 
+  return res.status(status).json({
+    message: error.message,
+    status: error.status,
+  });
+});
 
-const PORT = 5001;
-
-app.listen(PORT, () => {
-  console.log(`Server has started on PORT ${PORT}`);
+app.listen(configs.PORT, () => {
+  mongoose.connect(configs.DB_URL);
+  console.log(`Server has started on PORT ${configs.PORT}`);
 });
