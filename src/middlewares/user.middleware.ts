@@ -1,7 +1,8 @@
 import { NextFunction, Request, Response } from "express";
-// import mongoose from "mongoose";
+import { isObjectIdOrHexString } from "mongoose";
 
 import { ApiError } from "../errors";
+import { User } from "../models";
 import { UserValidator } from "../validators";
 
 class UserMiddleware {
@@ -20,6 +21,23 @@ class UserMiddleware {
     }
   }
 
+  public async isUserIdExist(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
+    try {
+      const user = await User.findById(req.params.id);
+      if (!user) {
+        throw new ApiError("user is not found", 400);
+      }
+      res.locals.user = user;
+      next();
+    } catch (e) {
+      next(e);
+    }
+  }
+
   public isUpdateValid(req: Request, res: Response, next: NextFunction) {
     try {
       const { error, value } = UserValidator.update.validate(req.body);
@@ -27,7 +45,7 @@ class UserMiddleware {
         throw new ApiError(error.message, 400);
       }
 
-      req.res.locals = value;
+      req.body = value;
 
       next();
     } catch (e) {
@@ -35,16 +53,16 @@ class UserMiddleware {
     }
   }
 
-  // public async isMongoIdValid(req: Request, res: Response, next: NextFunction) {
-  //   try {
-  //     mongoose.isValidObjectId(req.params.id)?
-  //     // const userId = req.params.id;
-  //     // const objectID = new mongoose.Types.ObjectId(userId);
-  //     // const objectIDString = objectID.toString();
-  //     // return objectIDString === req.params.id;
-  //   } catch (e) {
-  //     next(e);
-  //   }
-  // }
+  public async isMongoIdValid(req: Request, res: Response, next: NextFunction) {
+    try {
+      if (!isObjectIdOrHexString(req.params.id)) {
+        throw new ApiError("id is not valid", 400);
+      }
+      next();
+    } catch (e) {
+      next(e);
+    }
+  }
 }
+
 export const userMiddleware = new UserMiddleware();
