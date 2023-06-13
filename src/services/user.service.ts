@@ -1,29 +1,43 @@
+import { ApiError } from "../errors";
 import { User } from "../models";
+import { userRepository } from "../repositories/user.repository";
 import { IUser } from "../types";
 
 class UserService {
   public async findAll(): Promise<IUser[]> {
-    return User.find().select("-password");
+    return await User.find();
   }
 
   public async create(data: IUser): Promise<IUser> {
-    return User.create({ ...data });
+    return await userRepository.create(data);
   }
 
   public async findById(id: string): Promise<IUser> {
-    return User.findById(id);
+    return await this.getOneByIdOrThrow(id);
   }
 
-  public async updateById(id: string, value: IUser): Promise<IUser> {
-    return User.findOneAndUpdate(
-      { _id: id },
-      { ...value },
+  public async updateById(userId: string, dto: Partial<IUser>): Promise<IUser> {
+    await this.getOneByIdOrThrow(userId);
+
+    return await User.findOneAndUpdate(
+      { _id: userId },
+      { ...dto },
       { returnDocument: "after" }
     );
   }
 
-  public async deleteById(id: string): Promise<void> {
-    await User.deleteOne({ _id: id });
+  public async deleteById(userId: string): Promise<void> {
+    await this.getOneByIdOrThrow(userId);
+
+    await User.deleteOne({ _id: userId });
+  }
+
+  private async getOneByIdOrThrow(userId: string): Promise<IUser> {
+    const user = await User.findById(userId);
+    if (!user) {
+      throw new ApiError("User not found", 422);
+    }
+    return user;
   }
 }
 

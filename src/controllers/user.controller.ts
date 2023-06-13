@@ -24,7 +24,8 @@ class UserController {
     next: NextFunction
   ): Promise<Response<IUser>> {
     try {
-      const createdUser = await userService.create(req.res.locals as IUser);
+      // const createdUser = await userService.create(req.res.locals as IUser);
+      const createdUser = await userService.create(req.body);
 
       return res.status(201).json(createdUser);
     } catch (e) {
@@ -38,8 +39,10 @@ class UserController {
     next: NextFunction
   ): Promise<Response<IUser>> {
     try {
-      const user = await userService.findById(req.params.id);
+      // const user = await userService.findById(req.params.id);
+      const { userId } = req.params;
 
+      const user = await userService.findById(userId);
       return res.json(user);
     } catch (e) {
       next(e);
@@ -52,7 +55,8 @@ class UserController {
     next: NextFunction
   ): Promise<Response<IUser>> {
     try {
-      const updatedUser = await userService.updateById(req.params.id, req.body);
+      const { userId } = req.params;
+      const updatedUser = await userService.updateById(userId, req.body);
 
       // const { error, value } = UserValidator.update.validate(req.body);
       // if (error) {
@@ -71,7 +75,10 @@ class UserController {
     next: NextFunction
   ): Promise<Response<void>> {
     try {
-      await userService.deleteById(req.params.id);
+      // await userService.deleteById(req.params.id);
+      const { userId } = req.params;
+
+      await userService.deleteById(userId);
 
       return res.sendStatus(200);
     } catch (e) {
