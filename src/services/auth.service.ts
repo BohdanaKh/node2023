@@ -1,6 +1,5 @@
 import { ApiError } from "../errors";
-import { User } from "../models";
-import { Token } from "../models/Token.model";
+import { Token, User } from "../models";
 import { ICredentials, ITokensPair, IUser } from "../types";
 import { passwordService } from "./password.service";
 import { tokenService } from "./token.service";
@@ -21,9 +20,6 @@ class AuthService {
     user: IUser
   ): Promise<ITokensPair> {
     try {
-      //TODO: remove, settle inside of the middleware
-      user = await User.findOne({ email: credentials.email });
-
       const isMatched = await passwordService.compare(
         credentials.password,
         user.password
@@ -34,6 +30,7 @@ class AuthService {
 
       const tokensPair = await tokenService.generateTokenPair({
         _id: user._id,
+        name: user.name,
       });
 
       await Token.create({

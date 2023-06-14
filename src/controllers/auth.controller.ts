@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 
-import { authService } from "../services/auth.service";
+import { authService } from "../services";
 import { ITokensPair } from "../types";
 
 class AuthController {
@@ -26,7 +26,7 @@ class AuthController {
     try {
       const tokensPair = await authService.login(
         req.body,
-        req.res.locals?.user
+        req.res.locals.user
       );
 
       return res.status(200).json({

@@ -18,28 +18,12 @@ class UserController {
     }
   }
 
-  public async create(
-    req: Request,
-    res: Response,
-    next: NextFunction
-  ): Promise<Response<IUser>> {
-    try {
-      // const createdUser = await userService.create(req.res.locals as IUser);
-      const createdUser = await userService.create(req.body);
-
-      return res.status(201).json(createdUser);
-    } catch (e) {
-      next(e);
-    }
-  }
-
   public async findById(
     req: Request,
     res: Response,
     next: NextFunction
   ): Promise<Response<IUser>> {
     try {
-      // const user = await userService.findById(req.params.id);
       const { userId } = req.params;
 
       const user = await userService.findById(userId);
@@ -58,11 +42,6 @@ class UserController {
       const { userId } = req.params;
       const updatedUser = await userService.updateById(userId, req.body);
 
-      // const { error, value } = UserValidator.update.validate(req.body);
-      // if (error) {
-      //   throw new ApiError(error.message, 400);
-      // }
-
       return res.status(200).json(updatedUser);
     } catch (e) {
       next(e);
@@ -75,12 +54,11 @@ class UserController {
     next: NextFunction
   ): Promise<Response<void>> {
     try {
-      // await userService.deleteById(req.params.id);
       const { userId } = req.params;
 
       await userService.deleteById(userId);
 
-      return res.sendStatus(200);
+      return res.sendStatus(204);
     } catch (e) {
       next(e);
     }
