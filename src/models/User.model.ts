@@ -25,7 +25,12 @@ const userSchema = new Schema(
     password: {
       type: String,
       required: true,
+      // select: false,
     },
+    // isActivated: {
+    //   type: EUserStatus,
+    //   default: EUserStatus.inactive,
+    // },
   },
   {
     versionKey: false,
