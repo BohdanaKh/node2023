@@ -44,9 +44,10 @@ class EmailService {
   public async sendEmail(
     email: string,
     emailAction: EEmailActions,
-    context: Record<string, string | number> = {}
+    context: Record<string, string> = {}
   ) {
-    const { templateName, subject } = allTemplates[emailAction];
+    const { templateName, subject } = allTemplates[EEmailActions.ACTIVATE];
+
     const mailOptions = {
       to: email,
       subject,

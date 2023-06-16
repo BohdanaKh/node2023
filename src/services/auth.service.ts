@@ -1,6 +1,6 @@
-import { EEmailActions } from "../enums";
+import { EActionTokenType, EEmailActions, EUserStatus } from "../enums";
 import { ApiError } from "../errors";
-import { Token, User } from "../models";
+import { Action, OldPassword, Token, User } from "../models";
 import { ICredentials, ITokenPayload, ITokensPair, IUser } from "../types";
 import { emailService } from "./email.service";
 import { passwordService } from "./password.service";
@@ -11,9 +11,23 @@ class AuthService {
     try {
       const hashedPassword = await passwordService.hash(data.password);
 
+      // const activateToken = jwt.sign(payload, configs.ACTIVATE_SECRET, { expiresIn: "7d" });
+
       await User.create({ ...data, password: hashedPassword });
+      // const actionToken = tokenService.generateActionToken(
+      //   { _id: data._id }
+      // EActionTokenType.activate
+      // );
+      // await Action.create({
+      //   actionToken,
+      //   tokenType: EActionTokenType.activate,
+      //   _userId: data._id,
+      // });
+      // await emailService.sendEmail(data.email, EEmailActions.ACTIVATE, {
+      //   token: actionToken,
       await emailService.sendEmail(data.email, EEmailActions.WELCOME, {
         name: data.name,
+        // url:"https://localhost:5100/activate-acoount/{{activateToken}}"
       });
     } catch (e) {
       throw new ApiError(e.message, e.status);
@@ -60,6 +74,79 @@ class AuthService {
         Token.deleteOne({ refreshToken: oldTokenPair.refreshToken }),
       ]);
       return tokensPair;
+    } catch (e) {
+      throw new ApiError(e.message, e.status);
+    }
+  }
+
+  public async changePassword(
+    dto: { newPassword: string; oldPassword: string },
+    userId: string
+  ): Promise<void> {
+    try {
+      const oldPasswords = await OldPassword.find({ _userId: userId });
+      await Promise.all(
+        oldPasswords.map(async ({ password: hash }) => {
+          const isMatched = await passwordService.compare(
+            dto.oldPassword,
+            hash
+          );
+          if (isMatched) {
+            throw new ApiError("Wrong old password", 400);
+          }
+        })
+      );
+
+      const user = await User.findById(userId).select("password");
+
+      const isMatched = await passwordService.compare(
+        dto.oldPassword,
+        user.password
+      );
+      if (!isMatched) {
+        throw new ApiError("Wrong old password", 400);
+      }
+
+      const newHash = await passwordService.hash(dto.newPassword);
+      await Promise.all([
+        OldPassword.create({ password: user.password, _userId: userId }),
+        User.updateOne({ _id: userId }, { password: newHash }),
+      ]);
+    } catch (e) {
+      throw new ApiError(e.message, e.status);
+    }
+  }
+
+  public async sendActivateToken(user: IUser): Promise<void> {
+    try {
+      console.log(user._id);
+      const actionToken = tokenService.generateActionToken(
+        { _id: user._id }
+        // EActionTokenType.activate
+      );
+      await Action.create({
+        actionToken,
+        tokenType: EActionTokenType.activate,
+        _userId: user._id,
+      });
+      await emailService.sendEmail(user.email, EEmailActions.ACTIVATE, {
+        token: actionToken,
+      });
+    } catch (e) {
+      throw new ApiError(e.message, e.status);
+    }
+  }
+
+  public async activate(userId: string): Promise<void> {
+    try {
+      await User.updateOne(
+        { _id: userId },
+        { $set: { status: EUserStatus.active } }
+      );
+      await Token.deleteMany({
+        _user_id: userId,
+        tokenType: EActionTokenType.activate,
+      });
     } catch (e) {
       throw new ApiError(e.message, e.status);
     }

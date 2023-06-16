@@ -26,9 +26,29 @@ router.post(
 );
 
 router.post(
+  "/changePassword",
+  commonMiddleware.isBodyValid(UserValidator.changePassword),
+  authMiddleware.checkAccessToken,
+  authController.changePassword
+);
+
+router.post(
   "/refresh",
   authMiddleware.checkRefreshToken,
   authController.refresh
+);
+
+router.post(
+  "/activate",
+  commonMiddleware.isBodyValid(UserValidator.emailValidator),
+  userMiddleware.getDynamicallyOrThrow("email"),
+  authController.sendActivateToken
+);
+
+router.put(
+  "/activate/:token",
+  authMiddleware.checkActionToken,
+  authController.activate
 );
 
 export const authRouter = router;

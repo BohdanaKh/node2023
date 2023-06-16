@@ -2,7 +2,7 @@ import { NextFunction, Request, Response } from "express";
 
 import { ETokenType } from "../enums";
 import { ApiError } from "../errors";
-import { Token } from "../models";
+import { Action, Token } from "../models";
 import { tokenService } from "../services";
 
 class AuthMiddleware {
@@ -53,6 +53,30 @@ class AuthMiddleware {
 
       req.res.locals.oldTokenPair = entity;
       req.res.locals.tokenPayload = { name: payload.name, _id: payload._id };
+      next();
+    } catch (e) {
+      next(e);
+    }
+  }
+
+  public async checkActionToken(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) {
+    try {
+      const actionToken = req.params.token;
+
+      if (!actionToken) {
+        throw new ApiError("No token", 401);
+      }
+      const jwtPayload = tokenService.checkActionToken(actionToken);
+      const tokenInfo = await Action.findOne({ actionToken });
+
+      if (!tokenInfo) {
+        throw new ApiError("Token is not valid", 401);
+      }
+      req.res.locals = { tokenInfo, jwtPayload };
       next();
     } catch (e) {
       next(e);
