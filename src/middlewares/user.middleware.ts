@@ -17,7 +17,6 @@ class UserMiddleware {
         if (user) {
           throw new ApiError("User with this email already exist", 409);
         }
-
         next();
       } catch (e) {
         next(e);
