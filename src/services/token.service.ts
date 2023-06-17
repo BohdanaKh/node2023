@@ -20,24 +20,6 @@ class TokenService {
     };
   }
 
-  public generateActionToken(
-    payload: IActionTokenPayload
-    // tokenType: EActionTokenType
-  ): string {
-    const secret = configs.ACTIVATE_SECRET;
-
-    return jwt.sign(payload, secret, { expiresIn: "7d" });
-  }
-
-  public checkActionToken(token: string) {
-    try {
-      const secret = configs.ACTIVATE_SECRET;
-      return jwt.verify(token, secret) as IActionTokenPayload;
-    } catch (e) {
-      throw new ApiError("Token not valid", 401);
-    }
-  }
-
   public checkToken(token: string, type: ETokenType): ITokenPayload {
     try {
       let secret: string;
@@ -52,6 +34,24 @@ class TokenService {
       }
 
       return jwt.verify(token, secret) as ITokenPayload;
+    } catch (e) {
+      throw new ApiError("Token not valid", 401);
+    }
+  }
+
+  public generateActionToken(
+    payload: IActionTokenPayload
+    // tokenType: EActionTokenType
+  ): string {
+    const secret = configs.ACTIVATE_SECRET;
+
+    return jwt.sign(payload, secret, { expiresIn: "7d" });
+  }
+
+  public checkActionToken(token: string) {
+    try {
+      const secret = configs.ACTIVATE_SECRET;
+      return jwt.verify(token, secret) as IActionTokenPayload;
     } catch (e) {
       throw new ApiError("Token not valid", 401);
     }

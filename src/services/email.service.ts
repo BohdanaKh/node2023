@@ -46,7 +46,9 @@ class EmailService {
     emailAction: EEmailActions,
     context: Record<string, string> = {}
   ) {
-    const { templateName, subject } = allTemplates[EEmailActions.ACTIVATE];
+    const { templateName, subject } = allTemplates[emailAction];
+
+    context.frontUrl = configs.FRONT_URL;
 
     const mailOptions = {
       to: email,
@@ -54,6 +56,7 @@ class EmailService {
       template: templateName,
       context,
     };
+
     return await this.transporter.sendMail(mailOptions);
   }
 }

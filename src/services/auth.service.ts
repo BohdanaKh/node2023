@@ -10,24 +10,22 @@ class AuthService {
   public async register(data: IUser): Promise<void> {
     try {
       const hashedPassword = await passwordService.hash(data.password);
-
-      // const activateToken = jwt.sign(payload, configs.ACTIVATE_SECRET, { expiresIn: "7d" });
-
       await User.create({ ...data, password: hashedPassword });
       // const actionToken = tokenService.generateActionToken(
-      //   { _id: data._id }
-      // EActionTokenType.activate
+      //   { _id: user._id }
+      //   // EActionTokenType.activate
       // );
       // await Action.create({
       //   actionToken,
       //   tokenType: EActionTokenType.activate,
-      //   _userId: data._id,
+      //   _user_id: user._id,
       // });
-      // await emailService.sendEmail(data.email, EEmailActions.ACTIVATE, {
+      // await emailService.sendEmail(user.email, EEmailActions.ACTIVATE, {
       //   token: actionToken,
+      // });
+
       await emailService.sendEmail(data.email, EEmailActions.WELCOME, {
         name: data.name,
-        // url:"https://localhost:5100/activate-acoount/{{activateToken}}"
       });
     } catch (e) {
       throw new ApiError(e.message, e.status);
@@ -119,7 +117,6 @@ class AuthService {
 
   public async sendActivateToken(user: IUser): Promise<void> {
     try {
-      console.log(user._id);
       const actionToken = tokenService.generateActionToken(
         { _id: user._id }
         // EActionTokenType.activate
@@ -127,7 +124,7 @@ class AuthService {
       await Action.create({
         actionToken,
         tokenType: EActionTokenType.activate,
-        _userId: user._id,
+        _user_id: user._id,
       });
       await emailService.sendEmail(user.email, EEmailActions.ACTIVATE, {
         token: actionToken,

@@ -13,6 +13,7 @@ class UserMiddleware {
     ): Promise<void> => {
       try {
         const user = await User.findOne({ [field]: req.body[field] });
+
         if (user) {
           throw new ApiError("User with this email already exist", 409);
         }
