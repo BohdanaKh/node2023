@@ -1,7 +1,6 @@
-import path from "node:path";
-
 import nodemailer from "nodemailer";
 import hbs from "nodemailer-express-handlebars";
+import * as path from "path";
 
 import { configs } from "../configs";
 import { allTemplates } from "../constants";
@@ -9,6 +8,7 @@ import { EEmailActions } from "../enums";
 
 class EmailService {
   private transporter;
+
   constructor() {
     this.transporter = nodemailer.createTransport({
       from: "No reply",
@@ -18,9 +18,10 @@ class EmailService {
         pass: configs.NO_REPLY_PASSWORD,
       },
     });
+
     const hbsOptions = {
       viewEngine: {
-        extname: "hbs",
+        extname: ".hbs",
         defaultLayout: "main",
         layoutsDir: path.join(
           process.cwd(),
@@ -38,13 +39,14 @@ class EmailService {
       viewPath: path.join(process.cwd(), "src", "email-templates", "views"),
       extName: ".hbs",
     };
+
     this.transporter.use("compile", hbs(hbsOptions));
   }
 
-  public async sendEmail(
+  public async sendMail(
     email: string,
     emailAction: EEmailActions,
-    context: Record<string, string> = {}
+    context: Record<string, string | number> = {}
   ) {
     const { templateName, subject } = allTemplates[emailAction];
 

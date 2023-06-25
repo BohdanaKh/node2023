@@ -1,29 +1,23 @@
 import { model, Schema, Types } from "mongoose";
 
-import { EActionTokenType } from "../enums";
+import { EActionTokenTypes } from "../enums";
 import { User } from "./User.model";
 
-const actionTokensSchema = new Schema(
-  {
-    _user_id: {
-      type: Types.ObjectId,
-      required: true,
-      ref: User,
-    },
-
-    actionToken: {
-      type: String,
-      required: true,
-    },
-    tokenType: {
-      type: String,
-      enum: EActionTokenType,
-    },
+const actionSchema = new Schema({
+  actionToken: {
+    type: String,
+    required: true,
   },
-  {
-    versionKey: false,
-    timestamps: true,
-  }
-);
+  tokenType: {
+    type: String,
+    required: true,
+    enum: EActionTokenTypes,
+  },
+  _userId: {
+    type: Types.ObjectId,
+    required: true,
+    ref: User,
+  },
+});
 
-export const Action = model("action", actionTokensSchema);
+export const Action = model("action", actionSchema);

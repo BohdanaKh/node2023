@@ -16,6 +16,11 @@ const userSchema = new Schema(
       type: String,
       enum: EGenders,
     },
+    status: {
+      type: String,
+      default: EUserStatus.Inactive,
+      enum: EUserStatus,
+    },
     email: {
       type: String,
       required: true,
@@ -27,10 +32,9 @@ const userSchema = new Schema(
       required: true,
       select: false,
     },
-    status: {
-      type: String,
-      enum: EUserStatus,
-      default: EUserStatus.inactive,
+    isActivated: {
+      type: Boolean,
+      default: false,
     },
   },
   {

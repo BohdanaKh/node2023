@@ -1,12 +1,13 @@
 import { Router } from "express";
 
 import { authController } from "../controllers";
+import { EActionTokenTypes } from "../enums";
 import {
   authMiddleware,
   commonMiddleware,
   userMiddleware,
 } from "../middlewares";
-import { ICredentials } from "../types";
+import { ICredentials, IUser } from "../types";
 import { UserValidator } from "../validators";
 
 const router = Router();
@@ -16,6 +17,12 @@ router.post(
   commonMiddleware.isBodyValid(UserValidator.create),
   userMiddleware.findAndThrow("email"),
   authController.register
+);
+
+router.post(
+  "/register/:token",
+  authMiddleware.checkActionToken(EActionTokenTypes.Activate),
+  authController.activate
 );
 
 router.post(
@@ -39,16 +46,17 @@ router.post(
 );
 
 router.post(
-  "/activate",
-  commonMiddleware.isBodyValid(UserValidator.emailValidator),
-  userMiddleware.getDynamicallyOrThrow("email"),
-  authController.sendActivateToken
+  "/forgot",
+  commonMiddleware.isBodyValid(UserValidator.forgotPassword),
+  userMiddleware.isUserExist<IUser>("email"),
+  authController.forgotPassword
 );
 
 router.put(
-  "/activate/:token",
-  authMiddleware.checkActionToken,
-  authController.activate
+  "/forgot/:token",
+  commonMiddleware.isBodyValid(UserValidator.setForgotPassword),
+  authMiddleware.checkActionToken(EActionTokenTypes.Forgot),
+  authController.setForgotPassword
 );
 
 export const authRouter = router;

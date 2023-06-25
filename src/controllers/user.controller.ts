@@ -27,6 +27,7 @@ class UserController {
       const { userId } = req.params;
 
       const user = await userService.findById(userId);
+
       return res.json(user);
     } catch (e) {
       next(e);
@@ -40,6 +41,7 @@ class UserController {
   ): Promise<Response<IUser>> {
     try {
       const { userId } = req.params;
+
       const updatedUser = await userService.updateById(userId, req.body);
 
       return res.status(200).json(updatedUser);

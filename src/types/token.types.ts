@@ -8,5 +8,3 @@ export interface ITokensPair {
 export type ICredentials = Pick<IUser, "email" | "password">;
 
 export type ITokenPayload = Pick<IUser, "name" | "_id">;
-
-export type IActionTokenPayload = Pick<ITokenPayload, "_id">;

@@ -11,6 +11,23 @@ class AuthController {
   ): Promise<Response<void>> {
     try {
       await authService.register(req.body);
+
+      return res.sendStatus(201);
+    } catch (e) {
+      next(e);
+    }
+  }
+
+  public async activate(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<Response<void>> {
+    try {
+      const { jwtPayload } = req.res.locals;
+
+      await authService.activate(jwtPayload);
+
       return res.sendStatus(201);
     } catch (e) {
       next(e);
@@ -66,31 +83,37 @@ class AuthController {
     }
   }
 
-  public async sendActivateToken(
+  public async forgotPassword(
     req: Request,
     res: Response,
     next: NextFunction
-  ): Promise<void> {
+  ): Promise<Response<void>> {
     try {
-      const { user } = req.res.locals;
-      await authService.sendActivateToken(user);
+      const { user } = res.locals;
+      await authService.forgotPassword(user._id, req.body.email);
 
-      res.sendStatus(204);
+      return res.sendStatus(200);
     } catch (e) {
       next(e);
     }
   }
 
-  public async activate(
+  public async setForgotPassword(
     req: Request,
     res: Response,
     next: NextFunction
-  ): Promise<void> {
+  ): Promise<Response<void>> {
     try {
-      const { _id } = req.res.locals.jwtPayload as ITokenPayload;
-      await authService.activate(_id);
+      const { password } = req.body;
+      const { jwtPayload } = req.res.locals;
 
-      res.sendStatus(204);
+      await authService.setForgotPassword(
+        password,
+        jwtPayload._id,
+        req.params.token
+      );
+
+      return res.sendStatus(200);
     } catch (e) {
       next(e);
     }
