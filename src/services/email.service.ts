@@ -44,7 +44,7 @@ class EmailService {
   }
 
   public async sendMail(
-    email: string,
+    email: string | string[],
     emailAction: EEmailActions,
     context: Record<string, string | number> = {}
   ) {
