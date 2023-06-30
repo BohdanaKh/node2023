@@ -36,6 +36,10 @@ const userSchema = new Schema(
       type: Boolean,
       default: false,
     },
+    avatar: {
+      type: String,
+      required: false,
+    },
   },
   {
     versionKey: false,

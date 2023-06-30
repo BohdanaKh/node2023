@@ -3,6 +3,7 @@ import express, { NextFunction, Request, Response } from "express";
 import rateLimit from "express-rate-limit";
 import * as mongoose from "mongoose";
 import * as swaggerUi from "swagger-ui-express";
+import fileUpload from "express-fileupload";
 
 import { configs } from "./configs";
 import { cronRunner } from "./crons";
@@ -36,6 +37,7 @@ app.use(
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(fileUpload());
 
 app.use("/users", userRouter);
 
