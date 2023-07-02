@@ -1,8 +1,9 @@
+import { UploadedFile } from "express-fileupload";
+
 import { ApiError } from "../errors";
 import { User } from "../models";
 import { userRepository } from "../repositories/user.repository";
 import { IUser } from "../types";
-import { UploadedFile } from "express-fileupload";
 import { s3Service } from "./s3.service";
 
 class UserService {

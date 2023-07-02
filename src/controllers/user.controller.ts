@@ -1,9 +1,12 @@
 import { NextFunction, Request, Response } from "express";
-
-import { userService } from "../services";
-import { IUser } from "../types";
 import { UploadedFile } from "express-fileupload";
+import multer from "multer";
+import { createReadStream } from "streamifier";
+
 import { ApiError } from "../errors";
+import { userMapper } from "../mappers";
+import { s3Service, userService } from "../services";
+import { IUser } from "../types";
 
 class UserController {
   public async findAll(
@@ -30,7 +33,8 @@ class UserController {
 
       const user = await userService.findById(userId);
 
-      return res.json(user);
+      const response = userMapper.toResponse(user);
+      return res.json(response);
     } catch (e) {
       next(e);
     }
@@ -46,7 +50,8 @@ class UserController {
 
       const updatedUser = await userService.updateById(userId, req.body);
 
-      return res.status(200).json(updatedUser);
+      const response = userMapper.toResponse(updatedUser);
+      return res.status(200).json(response);
     } catch (e) {
       next(e);
     }
